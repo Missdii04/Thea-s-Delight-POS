@@ -1,0 +1,166 @@
+<x-app-layout>
+    <style>
+        .text-magenta { color: #D54F8D; }
+        .bg-magenta { background-color: #D54F8D; }
+        .bg-soft-pink { background-color: #FFF0F5; }
+        /* Style for the active tab indicator */
+        .tab-active { border-color: #D54F8D; color: #D54F8D; font-weight: 700; }
+    </style>
+    <x-slot name="header">
+        <h2 class="font-extrabold text-2xl text-magenta leading-tight">
+            {{ __('Summary Reports') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12 bg-soft-pink">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            {{-- 1. Tab Navigation --}}
+            <div class="flex border-b border-pink-200 mb-6 bg-white rounded-t-xl">
+                
+                {{-- Sales Data Tab Link --}}
+                <a href="{{ route('admin.reports.index', ['tab' => 'sales', 'start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}" 
+                   class="py-3 px-6 text-sm font-medium transition duration-150 border-b-2 
+                          {{ $activeTab == 'sales' ? 'tab-active border-magenta' : 'border-transparent text-gray-500 hover:text-magenta' }}">
+                    Sales Data Report
+                </a>
+
+                {{-- Product Data Tab Link --}}
+                <a href="{{ route('admin.reports.index', ['tab' => 'product', 'start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}" 
+                   class="py-3 px-6 text-sm font-medium transition duration-150 border-b-2 
+                          {{ $activeTab == 'product' ? 'tab-active border-magenta' : 'border-transparent text-gray-500 hover:text-magenta' }}">
+                    Overall Product Report
+                </a>
+            </div>
+
+
+            {{-- 2. Tab Content Container --}}
+            <div class="bg-white shadow-xl rounded-b-xl rounded-tr-xl p-6">
+
+                {{-- Date Filter Form - Stays on the same tab --}}
+                <div class="mb-6 pb-4 border-b border-pink-100">
+                    <form method="GET" action="{{ route('admin.reports.index') }}" class="flex flex-wrap items-end space-x-4">
+                        <input type="hidden" name="tab" value="{{ $activeTab }}">
+
+                        {{-- Start Date / End Date Inputs --}}
+                        <div>
+                            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                            <input type="date" name="start_date" id="start_date" 
+                                value="{{ $startDate->format('Y-m-d') }}"
+                                class="mt-1 block py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:ring-magenta focus:border-magenta sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                            <input type="date" name="end_date" id="end_date" 
+                                value="{{ $endDate->format('Y-m-d') }}"
+                                class="mt-1 block py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:ring-magenta focus:border-magenta sm:text-sm">
+                        </div>
+
+                        {{-- Apply Button --}}
+                        <button type="submit" class="px-4 py-2 bg-magenta text-white rounded-md text-sm hover:bg-pink-700 transition duration-150">
+                            View Report
+                        </button>
+                    </form>
+                </div>
+                
+                {{-- Export Buttons - Dynamically points to the correct export route --}}
+                <div class="flex space-x-3 mb-6">
+                    <h4 class="text-lg font-bold text-gray-700">Export:</h4>
+                    
+                    @php
+                        // Dynamically choose the export route name
+                        $exportRouteName = $activeTab == 'sales' ? 'admin.reports.sales.export' : 'admin.reports.product.export';
+                        $exportTitle = $activeTab == 'sales' ? 'Sales' : 'Product';
+                    @endphp
+
+                    {{-- Download XLSX (Replaces CSV) --}}
+                    <a href="{{ route($exportRouteName, ['format' => 'xlsx', 'start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}"
+                       class="px-3 py-1 bg-green-500 text-white rounded-md text-sm hover:bg-green-600 transition">
+                        Download {{ $exportTitle }} Excel (.xlsx)
+                    </a>
+
+                    {{-- Download/Print PDF (Existing) --}}
+                    <a href="{{ route($exportRouteName, ['format' => 'pdf', 'start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}"
+                       class="px-3 py-1 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition" target="_blank">
+                        Download/Print {{ $exportTitle }} PDF
+                    </a>
+                </div>
+
+
+                {{-- 3. Sales Data Content (Conditional Display) --}}
+                @if ($activeTab == 'sales')
+                    <h3 class="text-xl font-extrabold text-magenta mb-4">Transaction Details ({{ $totalTransactions ?? 0 }} total)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Data from {{ $startDate->format('M d, Y') }} to {{ $endDate->format('M d, Y') }}</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-pink-100">
+                            <thead class="bg-soft-pink text-magenta uppercase text-xs leading-normal">
+                                <tr>
+                                    <th class="py-3 px-6 text-left">Order ID</th>
+                                    <th class="py-3 px-6 text-left">Date/Time</th>
+                                    <th class="py-3 px-6 text-left">Cashier</th>
+                                    <th class="py-3 px-6 text-left">Method</th>
+                                    <th class="py-3 px-6 text-right">Grand Total (₱)</th>
+                                    <th class="py-3 px-6 text-right">VAT (₱)</th>
+                                    <th class="py-3 px-6 text-right">Discount (₱)</th>
+                                    <th class="py-3 px-6 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-pink-50 text-sm">
+                                @forelse ($detailedOrders as $order)
+                                <tr class="hover:bg-pink-50">
+                                    <td class="py-3 px-6 text-left">{{ $order->id }}</td>
+                                    <td class="py-3 px-6 text-left whitespace-nowrap">{{ $order->created_at->format('Y-m-d H:i A') }}</td>
+                                    <td class="py-3 px-6 text-left">{{ $order->cashier->name ?? 'N/A' }}</td>
+                                    <td class="py-3 px-6 text-left">{{ $order->payment_method }}</td>
+                                    <td class="py-3 px-6 text-right font-bold">₱{{ number_format($order->total_amount, 2) }}</td>
+                                    <td class="py-3 px-6 text-right">₱{{ number_format($order->tax_amount, 2) }}</td>
+                                    <td class="py-3 px-6 text-right">₱{{ number_format($order->discount_amount, 2) }}</td>
+                                    <td class="py-3 px-6 text-center">{{ ucfirst($order->status) }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="py-6 text-center text-gray-500">No completed orders found in the selected date range.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+
+
+                {{-- 4. Product Data Content (Conditional Display) --}}
+                @if ($activeTab == 'product')
+                    <h3 class="text-xl font-extrabold text-magenta mb-4">Products Sold Overview ({{ $uniqueProducts ?? 0 }} unique items)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Data aggregated from {{ $startDate->format('M d, Y') }} to {{ $endDate->format('M d, Y') }}</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-pink-100">
+                            <thead class="bg-soft-pink text-magenta uppercase text-xs leading-normal">
+                                <tr>
+                                    <th class="py-3 px-6 text-left">Product Name</th>
+                                    <th class="py-3 px-6 text-right">Total Quantity Sold</th>
+                                    <th class="py-3 px-6 text-right">Total Gross Revenue (₱)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-pink-50 text-sm">
+                                @forelse ($productSales as $product)
+                                <tr class="hover:bg-pink-50">
+                                    <td class="py-3 px-6 text-left font-semibold">{{ $product->product_name }}</td>
+                                    <td class="py-3 px-6 text-right">{{ number_format($product->total_quantity_sold) }}</td>
+                                    <td class="py-3 px-6 text-right font-bold">₱{{ number_format($product->total_gross_revenue, 2) }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="py-6 text-center text-gray-500">No product sales found in the selected date range.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+
+            </div>
+        </div>
+    </div>
+</x-app-layout>
