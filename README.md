@@ -80,6 +80,8 @@ You will need the following installed on your system:
 Watch our video demonstration to see the **Thea's Delight Bakery and Code** in action, including a walkthrough of the checkout process and the administrative dashboard.
 
 * **System Demonstration Link:** **(https://youtu.be/PqrSqgzE0GE)**
+* * Deployed System: **(https://theadelightpos.ccs-octa.com/)**
+    Video Presentation: **(https://youtu.be/ZmayQfci2i0?si=Qi1iNE0bSfFs81qv)**
 * **Project Presentation Slides:** **https://www.canva.com/design/DAG7KcliXHE/XnQtjeD63jWYPHNNiEz1RA/view?utm_content=DAG7KcliXHE&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h0e72b94745**
 
 ---
