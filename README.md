@@ -80,7 +80,7 @@ You will need the following installed on your system:
 Watch our video demonstration to see the **Thea's Delight Bakery and Code** in action, including a walkthrough of the checkout process and the administrative dashboard.
 
 * **System Demonstration Link:** **[INSERT YOUTUBE OR DEMO VIDEO LINK HERE]**
-* **Project Presentation Slides:** **[INSERT LINK TO POWERPOINT/SLIDESHARE HERE]**
+* **Project Presentation Slides:** **https://www.canva.com/design/DAG7KcliXHE/XnQtjeD63jWYPHNNiEz1RA/view?utm_content=DAG7KcliXHE&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h0e72b94745**
 
 ---
 
